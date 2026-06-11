@@ -6,6 +6,7 @@ const TECHNIQUES = [
   { id: 'box',       name: 'Respiration box',         emoji: '⬜', duration: '4 min',  desc: '4 phases de 4 secondes' },
   { id: 'coherence', name: 'Cohérence cardiaque',     emoji: '💚', duration: '5 min',  desc: '5s inspirer · 5s expirer' },
   { id: '478',       name: 'Méthode 4-7-8',           emoji: '🌙', duration: '2 min',  desc: 'Sédatif naturel rapide' },
+  { id: 'sedative',  name: 'Soupir physiologique',    emoji: '😮‍💨', duration: '1.5 min', desc: 'Double sniff · longue expiration' },
   { id: 'grounding', name: '5-4-3-2-1 Ancrage',       emoji: '🌱', duration: '3 min',  desc: 'Reviens dans le présent' },
   { id: 'cold',      name: 'Eau froide',               emoji: '💧', duration: '30 sec', desc: 'Ralentit le rythme cardiaque' },
   { id: 'muscle',    name: 'Relâchement musculaire',  emoji: '💆', duration: '3 min',  desc: 'Contracter puis relâcher' },
@@ -409,6 +410,57 @@ function WriteTechnique({ onClose }: { onClose: () => void }) {
   )
 }
 
+function SedativeTechnique({ onClose }: { onClose: () => void }) {
+  const SNIFF1 = 2, SNIFF2 = 1, EXHALE = 7
+  const CYCLE = 10, TOTAL_CYCLES = 8, TOTAL = 80
+
+  const [elapsed, setElapsed] = useState(0)
+  const [done, setDone] = useState(false)
+
+  useEffect(() => {
+    if (done) return
+    const t = setInterval(() => setElapsed(e => {
+      if (e + 1 >= TOTAL) { setDone(true); return TOTAL }
+      return e + 1
+    }), 1000)
+    return () => clearInterval(t)
+  }, [done])
+
+  if (done) return <DoneCard message="Ton système nerveux s'est calmé. Le nerf vague a fait son travail." onClose={onClose} />
+
+  const ce = elapsed % CYCLE
+  const round = Math.floor(elapsed / CYCLE) + 1
+  const isExhale = ce >= SNIFF1 + SNIFF2
+  const isSniff2 = !isExhale && ce >= SNIFF1
+
+  let label: string, sublabel: string, phaseLeft: number
+  if (ce < SNIFF1) {
+    label = '👃 Premier sniff'
+    sublabel = 'Courte inspiration par le nez'
+    phaseLeft = SNIFF1 - ce
+  } else if (ce < SNIFF1 + SNIFF2) {
+    label = '👃 Deuxième sniff'
+    sublabel = 'Un petit sniff de plus — gonfle les alvéoles'
+    phaseLeft = SNIFF1 + SNIFF2 - ce
+  } else {
+    label = '😮‍💨 Expire'
+    sublabel = 'Long souffle lent par la bouche — aussi long que possible'
+    phaseLeft = CYCLE - ce
+  }
+
+  return (
+    <div className="p-6 text-center">
+      <h3 className="text-white font-semibold text-lg mb-1">Soupir physiologique</h3>
+      <p className="text-muted text-sm mb-4">Cycle {Math.min(round, TOTAL_CYCLES)}/{TOTAL_CYCLES}</p>
+      <BreathCircle growing={!isExhale} phaseDuration={isExhale ? EXHALE : isSniff2 ? SNIFF2 : SNIFF1} />
+      <p className="text-2xl font-bold text-accent mt-2">{label}</p>
+      <p className="text-muted text-xs mt-2 max-w-xs mx-auto leading-relaxed">{sublabel}</p>
+      <p className="text-white font-mono text-sm mt-3">{phaseLeft}s</p>
+      <button onClick={onClose} className="mt-8 text-muted text-sm underline">Arrêter</button>
+    </div>
+  )
+}
+
 function BubbleTechnique({ onClose }: { onClose: () => void }) {
   const TOTAL = 5 * 60
   const FILL_DUR = 4000
@@ -534,6 +586,7 @@ function TechniqueView({ id, onClose }: { id: string; onClose: () => void }) {
     case 'box':       return <BoxBreathing onClose={onClose} />
     case 'coherence': return <CoherenceTechnique onClose={onClose} />
     case '478':       return <Breathing478Technique onClose={onClose} />
+    case 'sedative':  return <SedativeTechnique onClose={onClose} />
     case 'grounding': return <GroundingTechnique onClose={onClose} />
     case 'cold':      return <ColdWaterTechnique onClose={onClose} />
     case 'muscle':    return <MuscleRelaxTechnique onClose={onClose} />
