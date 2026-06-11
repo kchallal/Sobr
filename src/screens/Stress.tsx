@@ -213,6 +213,61 @@ function ColdWaterTechnique({ onClose }: { onClose: () => void }) {
   )
 }
 
+const MUSCLE_PARTS: Record<string, string[]> = {
+  'Pieds':   ['feet'],
+  'Mollets': ['calves'],
+  'Cuisses': ['thighs'],
+  'Ventre':  ['abdomen'],
+  'Poings':  ['upper-arms', 'forearms', 'hands'],
+  'Épaules': ['shoulders'],
+  'Visage':  ['face'],
+}
+
+function BodyDiagram({ muscle, isContract }: { muscle: string; isContract: boolean }) {
+  const parts = MUSCLE_PARTS[muscle] ?? []
+  const ac = isContract ? '#ef4444' : '#4ECCA3'
+  const ic = '#374151'
+  const dim = '#1f2937'
+  const t = { style: { transition: 'fill 0.5s ease' } }
+  const c = (part: string) => parts.includes(part) ? ac : ic
+
+  return (
+    <svg viewBox="0 0 100 220" width="88" height="194">
+      {/* Face */}
+      <ellipse cx="50" cy="18" rx="13" ry="15" fill={c('face')} {...t} />
+      {/* Neck */}
+      <rect x="45" y="31" width="10" height="9" rx="3" fill={dim} />
+      {/* Shoulders */}
+      <ellipse cx="25" cy="48" rx="14" ry="9" fill={c('shoulders')} {...t} />
+      <ellipse cx="75" cy="48" rx="14" ry="9" fill={c('shoulders')} {...t} />
+      {/* Chest */}
+      <rect x="32" y="39" width="36" height="36" rx="5" fill={dim} />
+      {/* Abdomen */}
+      <rect x="33" y="75" width="34" height="28" rx="5" fill={c('abdomen')} {...t} />
+      {/* Upper arms */}
+      <rect x="14" y="43" width="13" height="30" rx="6" fill={c('upper-arms')} {...t} />
+      <rect x="73" y="43" width="13" height="30" rx="6" fill={c('upper-arms')} {...t} />
+      {/* Forearms */}
+      <rect x="15" y="75" width="11" height="26" rx="5" fill={c('forearms')} {...t} />
+      <rect x="74" y="75" width="11" height="26" rx="5" fill={c('forearms')} {...t} />
+      {/* Hands */}
+      <ellipse cx="20" cy="110" rx="6" ry="8" fill={c('hands')} {...t} />
+      <ellipse cx="80" cy="110" rx="6" ry="8" fill={c('hands')} {...t} />
+      {/* Hips */}
+      <rect x="33" y="103" width="34" height="13" rx="5" fill={dim} />
+      {/* Thighs */}
+      <rect x="34" y="116" width="14" height="38" rx="6" fill={c('thighs')} {...t} />
+      <rect x="52" y="116" width="14" height="38" rx="6" fill={c('thighs')} {...t} />
+      {/* Calves */}
+      <rect x="35" y="156" width="12" height="32" rx="5" fill={c('calves')} {...t} />
+      <rect x="53" y="156" width="12" height="32" rx="5" fill={c('calves')} {...t} />
+      {/* Feet */}
+      <ellipse cx="41" cy="194" rx="11" ry="7" fill={c('feet')} {...t} />
+      <ellipse cx="59" cy="194" rx="11" ry="7" fill={c('feet')} {...t} />
+    </svg>
+  )
+}
+
 function MuscleRelaxTechnique({ onClose }: { onClose: () => void }) {
   const CONTRACT = 7
   const RELEASE = 12
@@ -258,30 +313,41 @@ function MuscleRelaxTechnique({ onClose }: { onClose: () => void }) {
   const step = MUSCLE_STEPS[stepIdx]
 
   return (
-    <div className="p-6 text-center">
-      <h3 className="text-white font-semibold text-lg mb-1">Relâchement musculaire</h3>
-      <p className="text-muted text-sm mb-5">Étape {stepIdx + 1}/{MUSCLE_STEPS.length} — {step.name}</p>
-      <div className={`rounded-3xl p-6 mb-6 border transition-colors duration-500 ${
-        isContract ? 'bg-warn/15 border-warn/30' : 'bg-accent/10 border-accent/20'
-      }`}>
-        <p className={`text-5xl font-bold mb-3 font-mono ${isContract ? 'text-warn' : 'text-accent'}`}>
-          {phaseTime}s
-        </p>
-        <p className="text-white font-semibold text-xl mb-3">
-          {isContract ? '💪 Contracte' : '😮‍💨 Relâche'}
-        </p>
-        <p className="text-muted text-sm leading-relaxed">
-          {isContract ? step.contract : 'Relâche complètement. Sens la différence entre la tension et le relâchement.'}
-        </p>
+    <div className="p-6">
+      <h3 className="text-white font-semibold text-lg mb-1 text-center">Relâchement musculaire</h3>
+      <p className="text-muted text-sm mb-4 text-center">Étape {stepIdx + 1}/{MUSCLE_STEPS.length}</p>
+
+      <div className="flex items-center gap-4 mb-4">
+        <div className="flex-shrink-0 flex items-center justify-center">
+          <BodyDiagram muscle={step.name} isContract={isContract} />
+        </div>
+        <div className={`flex-1 rounded-3xl p-4 border transition-colors duration-500 text-center ${
+          isContract ? 'bg-warn/15 border-warn/30' : 'bg-accent/10 border-accent/20'
+        }`}>
+          <p className="text-white font-semibold text-base mb-1">{step.name}</p>
+          <p className={`text-4xl font-bold mb-2 font-mono ${isContract ? 'text-warn' : 'text-accent'}`}>
+            {phaseTime}s
+          </p>
+          <p className="text-white font-semibold text-sm">
+            {isContract ? '💪 Contracte' : '😮‍💨 Relâche'}
+          </p>
+        </div>
       </div>
-      <div className="flex justify-center gap-2">
+
+      <p className="text-muted text-sm leading-relaxed text-center mb-4 min-h-[40px]">
+        {isContract ? step.contract : 'Relâche complètement. Sens la différence entre la tension et le relâchement.'}
+      </p>
+
+      <div className="flex justify-center gap-2 mb-4">
         {MUSCLE_STEPS.map((_, i) => (
           <div key={i} className={`w-2 h-2 rounded-full transition-colors ${
             i < stepIdx ? 'bg-accent' : i === stepIdx ? 'bg-white' : 'bg-gray-700'
           }`} />
         ))}
       </div>
-      <button onClick={onClose} className="mt-6 text-muted text-sm underline">Arrêter</button>
+      <div className="text-center">
+        <button onClick={onClose} className="text-muted text-sm underline">Arrêter</button>
+      </div>
     </div>
   )
 }
@@ -461,120 +527,67 @@ function SedativeTechnique({ onClose }: { onClose: () => void }) {
   )
 }
 
+const FILL_DUR = 4000
+const FLOAT_DUR = 5500
+
 function BubbleTechnique({ onClose }: { onClose: () => void }) {
-  const TOTAL = 5 * 60
-  const FILL_DUR = 4000
-  const FLOAT_DUR = 5500
-  const [started, setStarted] = useState(false)
-  const [elapsed, setElapsed] = useState(0)
-  const [done, setDone] = useState(false)
   const [bubbles, setBubbles] = useState<{ id: number; x: number; phase: 'filling' | 'floating' }[]>([])
+  const nextId = useRef(0)
 
-  useEffect(() => {
-    if (!started || done) return
-    const t = setInterval(() => setElapsed(e => { if (e + 1 >= TOTAL) { setDone(true); return TOTAL } return e + 1 }), 1000)
-    return () => clearInterval(t)
-  }, [started, done])
-
-  function releaseBubble() {
-    const id = Date.now()
-    const x = 20 + Math.random() * 55
-    setBubbles(b => [...b, { id, x, phase: 'filling' }])
-    setTimeout(() => setBubbles(b => b.map(bub => bub.id === id ? { ...bub, phase: 'floating' } : bub)), FILL_DUR)
-    setTimeout(() => setBubbles(b => b.filter(bub => bub.id !== id)), FILL_DUR + FLOAT_DUR)
-  }
-
-  if (done) return <DoneCard message="Les pensées sont passées. Tu es resté l'observateur." onClose={onClose} />
-
-  const HINTS = [
-    'Une pensée arrive ? Pose-la dans une bulle.',
-    "Observe-la s'élever. Tu n'as pas besoin de la retenir.",
-    "Tu es l'observateur, pas la pensée.",
-    'Laisse passer. Rien à résoudre maintenant.',
-    'Chaque bulle emporte la pensée avec elle.',
-  ]
-  const timeLeft = TOTAL - elapsed
-  const mins = Math.floor(timeLeft / 60)
-  const secs = timeLeft % 60
-  const hint = HINTS[Math.min(Math.floor(elapsed / (TOTAL / HINTS.length)), HINTS.length - 1)]
-
-  if (!started) {
-    return (
-      <div className="fixed inset-0 bg-base z-50 flex flex-col items-center justify-center px-8 text-center">
-        <div className="text-6xl mb-5">🫧</div>
-        <h3 className="text-white font-semibold text-xl mb-5">Bulles de pensées</h3>
-        <div className="bg-surface rounded-2xl p-5 mb-8 text-left space-y-3 w-full max-w-sm">
-          <p className="text-white text-sm font-medium">Comment ça marche</p>
-          <p className="text-muted text-sm leading-relaxed">Installe-toi confortablement. Ferme les yeux ou fixe un point devant toi.</p>
-          <p className="text-muted text-sm leading-relaxed">Chaque fois qu'une pensée surgit, appuie sur le bouton. Une bulle apparaît — prends le temps de lui confier la pensée. Elle s'élèvera d'elle-même.</p>
-          <p className="text-muted text-sm leading-relaxed">Tu ne combats pas la pensée. Tu l'observes juste partir.</p>
-        </div>
-        <button
-          onClick={() => { setStarted(true); releaseBubble() }}
-          className="w-full max-w-sm bg-accent text-gray-900 font-semibold py-4 rounded-2xl"
-        >
-          Commencer (5 min)
-        </button>
-        <button onClick={onClose} className="text-muted text-sm mt-4 underline">Annuler</button>
-      </div>
-    )
-  }
-
-  if (done) {
-    return (
-      <div className="fixed inset-0 bg-base z-50 flex flex-col items-center justify-center px-8 text-center">
-        <div className="text-5xl mb-4">✅</div>
-        <p className="text-white font-semibold text-lg mb-2">C'est fait.</p>
-        <p className="text-muted text-sm leading-relaxed mb-8 max-w-xs">Les pensées sont passées. Tu es resté l'observateur.</p>
-        <button onClick={onClose} className="bg-accent text-gray-900 font-semibold py-3 px-10 rounded-2xl">Fermer</button>
-      </div>
-    )
+  function addBubble(e: React.MouseEvent) {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const id = nextId.current++
+    setBubbles(b => [...b, { id, x: Math.max(8, Math.min(92, x)), phase: 'filling' }])
+    setTimeout(() => {
+      setBubbles(b => b.map(bub => bub.id === id ? { ...bub, phase: 'floating' } : bub))
+      setTimeout(() => setBubbles(b => b.filter(bub => bub.id !== id)), FLOAT_DUR)
+    }, FILL_DUR)
   }
 
   return (
-    <div className="fixed inset-0 bg-base z-50">
-      {/* Full-screen theater */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-          <span style={{ fontSize: 160, opacity: 0.04 }}>🌿</span>
-        </div>
-        <div className="absolute top-safe top-5 right-5 text-muted font-mono text-sm">
-          {mins}:{String(secs).padStart(2, '0')}
-        </div>
+    <div className="fixed inset-0 bg-base z-50 flex flex-col" onClick={addBubble}>
+      <style>{`
+        @keyframes pulseFill {
+          0%, 100% { transform: scale(1);    opacity: 0.55; box-shadow: 0 0 12px rgba(78,204,163,0.15); }
+          50%       { transform: scale(1.09); opacity: 0.8;  box-shadow: 0 0 28px rgba(78,204,163,0.3);  }
+        }
+        @keyframes floatUp {
+          0%   { transform: translateY(0)       scale(1);    opacity: 0.75; }
+          60%  { transform: translateY(-560px)  scale(1.08); opacity: 0.4;  }
+          100% { transform: translateY(-1100px) scale(0.6);  opacity: 0;    }
+        }
+      `}</style>
+      <div className="flex-1 relative select-none">
         {bubbles.map(b => (
           <div
             key={b.id}
-            className="absolute"
             style={{
-              left: `calc(${b.x}% - 45px)`,
+              position: 'absolute',
               bottom: 160,
+              left: `calc(${b.x}% - 45px)`,
               width: 90,
               height: 90,
               borderRadius: '50%',
-              border: '2px solid rgba(78,204,163,0.55)',
-              background: 'rgba(78,204,163,0.05)',
+              background: 'radial-gradient(circle, rgba(78,204,163,0.45) 0%, rgba(78,204,163,0.1) 100%)',
+              border: '1.5px solid rgba(78,204,163,0.4)',
               animation: b.phase === 'filling'
-                ? 'pulseFill 2s ease-in-out infinite'
-                : 'floatUp 5.5s ease-out forwards',
+                ? `pulseFill ${FILL_DUR / 1000}s ease-in-out infinite`
+                : `floatUp ${FLOAT_DUR / 1000}s ease-out forwards`,
             }}
           />
         ))}
       </div>
-
-      {/* Bottom overlay */}
-      <div
-        className="absolute bottom-0 left-0 right-0 px-6 pb-10 pt-20 text-center"
-        style={{ background: 'linear-gradient(to top, rgba(15,17,23,0.98) 60%, transparent)' }}
-      >
-        <p className="text-gray-300 text-sm leading-relaxed mb-6 min-h-[40px]">{hint}</p>
-        <button
-          onClick={releaseBubble}
-          className="w-full max-w-sm border border-accent/40 text-accent font-medium py-4 rounded-2xl mb-3 active:scale-95 transition-transform text-base"
-        >
-          🫧 Nouvelle bulle
-        </button>
-        <button onClick={onClose} className="text-muted text-sm underline">Arrêter</button>
+      <div className="px-6 pb-14 pt-4 text-center pointer-events-none">
+        <p className="text-white/90 font-semibold text-base mb-1">Touche l'écran</p>
+        <p className="text-muted text-sm">Mets une pensée dans chaque bulle. Laisse-la partir.</p>
       </div>
+      <button
+        className="absolute top-5 right-5 text-muted text-sm z-10"
+        onClick={e => { e.stopPropagation(); onClose() }}
+      >
+        Fermer ✕
+      </button>
     </div>
   )
 }
@@ -593,7 +606,6 @@ function TechniqueView({ id, onClose }: { id: string; onClose: () => void }) {
     case 'walk':      return <WalkTechnique onClose={onClose} />
     case 'stop':      return <StopTechnique onClose={onClose} />
     case 'write':     return <WriteTechnique onClose={onClose} />
-    case 'bubbles':   return <BubbleTechnique onClose={onClose} />
     default:          return null
   }
 }
@@ -629,6 +641,8 @@ export default function Stress() {
         </div>
       </div>
 
+      {active === 'bubbles' && <BubbleTechnique onClose={() => setActive(null)} />}
+
       {active && active !== 'bubbles' && (
         <div
           className="fixed inset-0 bg-black/70 flex items-end justify-center z-50"
@@ -644,23 +658,10 @@ export default function Stress() {
         </div>
       )}
 
-      {active === 'bubbles' && (
-        <BubbleTechnique onClose={() => setActive(null)} />
-      )}
-
       <style>{`
         @keyframes slideUp {
           from { transform: translateY(100%); opacity: 0; }
           to   { transform: translateY(0);    opacity: 1; }
-        }
-        @keyframes pulseFill {
-          0%, 100% { transform: scale(1);    opacity: 0.55; box-shadow: 0 0 12px rgba(78,204,163,0.15); }
-          50%       { transform: scale(1.09); opacity: 0.8;  box-shadow: 0 0 28px rgba(78,204,163,0.3);  }
-        }
-        @keyframes floatUp {
-          0%   { transform: translateY(0)      scale(1);    opacity: 0.75; }
-          60%  { transform: translateY(-560px) scale(1.08); opacity: 0.4;  }
-          100% { transform: translateY(-1100px) scale(0.6); opacity: 0;    }
         }
       `}</style>
     </div>
