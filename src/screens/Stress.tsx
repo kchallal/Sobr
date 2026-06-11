@@ -213,57 +213,75 @@ function ColdWaterTechnique({ onClose }: { onClose: () => void }) {
   )
 }
 
-const MUSCLE_PARTS: Record<string, string[]> = {
-  'Pieds':   ['feet'],
+const BODY_GROUPS: Record<string, string[]> = {
+  'Visage':  ['head'],
+  'Épaules': ['delts'],
+  'Poings':  ['biceps', 'triceps', 'forearm'],
+  'Ventre':  ['abs', 'obliques'],
+  'Cuisses': ['quads'],
   'Mollets': ['calves'],
-  'Cuisses': ['thighs'],
-  'Ventre':  ['abdomen'],
-  'Poings':  ['upper-arms', 'forearms', 'hands'],
-  'Épaules': ['shoulders'],
-  'Visage':  ['face'],
+  'Pieds':   ['feet'],
 }
 
 function BodyDiagram({ muscle, isContract }: { muscle: string; isContract: boolean }) {
-  const parts = MUSCLE_PARTS[muscle] ?? []
   const ac = isContract ? '#ef4444' : '#4ECCA3'
   const ic = '#374151'
   const dim = '#1f2937'
-  const t = { style: { transition: 'fill 0.5s ease' } }
-  const c = (part: string) => parts.includes(part) ? ac : ic
+  const tr = { style: { transition: 'fill 0.5s ease' } }
+  const active = new Set(BODY_GROUPS[muscle] ?? [])
+  const f = (g: string) => ({ fill: active.has(g) ? ac : ic, ...tr })
 
   return (
-    <svg viewBox="0 0 100 220" width="88" height="194">
-      {/* Face */}
-      <ellipse cx="50" cy="18" rx="13" ry="15" fill={c('face')} {...t} />
+    <svg viewBox="0 0 100 210" width="90" height="189">
+      {/* Head */}
+      <polygon points="42.4 2.9 40 11.8 42 19.6 46.1 23.3 49.8 25.3 54.7 22.4 57.6 19.2 59.2 10.2 57.1 2.4 49.8 0" {...f('head')}/>
       {/* Neck */}
-      <rect x="45" y="31" width="10" height="9" rx="3" fill={dim} />
-      {/* Shoulders */}
-      <ellipse cx="25" cy="48" rx="14" ry="9" fill={c('shoulders')} {...t} />
-      <ellipse cx="75" cy="48" rx="14" ry="9" fill={c('shoulders')} {...t} />
+      <polygon points="55.5 23.7 50.6 33.5 50.6 39.2 61.6 40 70.6 44.9 69.4 36.7 63.3 35.1 58.4 30.6" fill={dim} {...tr}/>
+      <polygon points="29 44.9 30.2 37.1 36.3 35.1 41.2 30.2 44.5 24.5 49 33.9 48.6 39.2 38 39.6" fill={dim} {...tr}/>
       {/* Chest */}
-      <rect x="32" y="39" width="36" height="36" rx="5" fill={dim} />
-      {/* Abdomen */}
-      <rect x="33" y="75" width="34" height="28" rx="5" fill={c('abdomen')} {...t} />
-      {/* Upper arms */}
-      <rect x="14" y="43" width="13" height="30" rx="6" fill={c('upper-arms')} {...t} />
-      <rect x="73" y="43" width="13" height="30" rx="6" fill={c('upper-arms')} {...t} />
+      <polygon points="51.8 41.6 51 55.1 57.9 57.9 67.8 55.5 70.6 47.3 62 41.6" fill={dim} {...tr}/>
+      <polygon points="29.8 46.5 31.4 55.5 40.8 57.9 48.2 55.1 47.8 42 37.6 42" fill={dim} {...tr}/>
+      {/* Shoulders / Deltoids */}
+      <polygon points="78.4 53.1 79.6 47.8 79.2 41.2 75.9 38 71 36.3 72.2 42.9 71.4 47.3" {...f('delts')}/>
+      <polygon points="28.2 47.3 21.2 53.1 20 47.8 20.4 40.8 24.5 37.1 28.6 37.1 26.9 43.3" {...f('delts')}/>
+      {/* Biceps */}
+      <polygon points="16.7 68.2 18 71.4 22.9 66.1 29 53.9 27.8 49.4 20.4 55.9" {...f('biceps')}/>
+      <polygon points="71.4 49.4 70.2 54.7 76.3 66.1 81.6 71.8 82.9 69 78.8 55.5" {...f('biceps')}/>
+      {/* Triceps */}
+      <polygon points="69.4 55.5 69.4 61.6 75.9 72.7 77.6 70.2 75.5 67.3" {...f('triceps')}/>
+      <polygon points="22.4 69.4 29.8 55.5 29.8 60.8 22.9 73.1" {...f('triceps')}/>
+      {/* Obliques */}
+      <polygon points="68.6 63.3 67.3 57.1 58.8 59.6 60 64.1 60.4 83.3 65.7 78.8 66.5 69.8" {...f('obliques')}/>
+      <polygon points="33.9 78.4 33.1 71.8 31 63.3 32.2 57.1 40.8 59.2 39.2 63.3 39.2 83.7" {...f('obliques')}/>
+      {/* Abs */}
+      <polygon points="56.3 59.2 57.9 64.1 58.4 78 58.4 92.7 56.3 98.4 55.1 104.1 51.4 107.8 51 84.5 50.6 67.3 51 57.1" {...f('abs')}/>
+      <polygon points="43.7 58.8 48.6 57.1 49 67.3 48.6 84.5 48.2 107.3 44.5 103.7 40.8 91.4 40.8 78.4 41.2 64.5" {...f('abs')}/>
       {/* Forearms */}
-      <rect x="15" y="75" width="11" height="26" rx="5" fill={c('forearms')} {...t} />
-      <rect x="74" y="75" width="11" height="26" rx="5" fill={c('forearms')} {...t} />
-      {/* Hands */}
-      <ellipse cx="20" cy="110" rx="6" ry="8" fill={c('hands')} {...t} />
-      <ellipse cx="80" cy="110" rx="6" ry="8" fill={c('hands')} {...t} />
-      {/* Hips */}
-      <rect x="33" y="103" width="34" height="13" rx="5" fill={dim} />
-      {/* Thighs */}
-      <rect x="34" y="116" width="14" height="38" rx="6" fill={c('thighs')} {...t} />
-      <rect x="52" y="116" width="14" height="38" rx="6" fill={c('thighs')} {...t} />
+      <polygon points="6.1 88.6 10.2 75.1 14.7 70.2 16.3 74.3 19.2 73.5 4.5 97.6 0 100" {...f('forearm')}/>
+      <polygon points="84.5 69.8 83.3 73.5 80 73.1 95.1 98.4 100 100.4 93.5 89.4 89.8 76.3" {...f('forearm')}/>
+      <polygon points="77.6 72.2 77.6 77.6 80.4 84.1 85.3 89.8 92.2 101.2 94.7 99.6" {...f('forearm')}/>
+      <polygon points="6.9 101.2 13.5 90.6 18.8 84.1 21.6 77.1 21.2 71.8 4.9 98.8" {...f('forearm')}/>
+      {/* Hip / Abductors */}
+      <polygon points="52.7 110.2 54.3 124.9 60 110.2 62 100 64.9 94.3 60 92.7 56.7 104.5" fill={dim} {...tr}/>
+      <polygon points="47.8 110.6 44.9 125.3 42 115.9 40.4 113.1 39.6 107.3 38 102.4 34.7 93.9 39.6 92.2 41.6 99.2 43.7 105.3" fill={dim} {...tr}/>
+      {/* Quadriceps */}
+      <polygon points="34.7 98.8 37.1 108.2 37.1 127.8 34.3 137.1 31 132.7 29.4 120 28.2 111.4 29.4 100.8 32.2 94.7" {...f('quads')}/>
+      <polygon points="63.3 105.7 64.5 100 66.9 94.7 70.2 101.2 71 111.8 68.2 133.1 65.3 137.6 62.4 128.6 62 111.4" {...f('quads')}/>
+      <polygon points="38.8 129.4 38.4 112.2 41.2 118.4 44.5 129.4 42.9 135.1 40 146.1 36.3 146.5 35.5 140" {...f('quads')}/>
+      <polygon points="59.6 145.7 55.5 129 60.8 113.9 61.2 130.2 64.1 139.6 62.9 146.5" {...f('quads')}/>
+      <polygon points="32.7 138.4 26.5 145.7 25.7 136.7 25.7 127.3 26.9 114.3 29.4 133.5" {...f('quads')}/>
+      <polygon points="71.8 113.1 73.9 124.1 73.9 140.4 72.7 145.7 66.5 138.4 70.2 133.5" {...f('quads')}/>
+      {/* Knees */}
+      <polygon points="33.9 140 34.7 143.3 35.5 147.3 36.3 151 35.1 156.7 29.8 156.7 27.3 152.7 27.3 147.3 30.2 144.1" fill={ic} {...tr}/>
+      <polygon points="65.7 140 72.2 147.8 72.2 152.2 69.8 157.1 64.9 156.7 62.9 151" fill={ic} {...tr}/>
       {/* Calves */}
-      <rect x="35" y="156" width="12" height="32" rx="5" fill={c('calves')} {...t} />
-      <rect x="53" y="156" width="12" height="32" rx="5" fill={c('calves')} {...t} />
-      {/* Feet */}
-      <ellipse cx="41" cy="194" rx="11" ry="7" fill={c('feet')} {...t} />
-      <ellipse cx="59" cy="194" rx="11" ry="7" fill={c('feet')} {...t} />
+      <polygon points="71.4 160.4 73.5 153.5 76.7 161.2 79.6 167.8 78.4 187.8 79.6 195.5 74.7 195.5" {...f('calves')}/>
+      <polygon points="24.9 194.7 27.8 164.9 28.2 160.4 26.1 154.3 24.9 157.6 22.4 161.6 20.8 167.8 22 188.2 20.8 195.5" {...f('calves')}/>
+      <polygon points="72.7 195.1 69.8 159.2 65.3 158.4 64.1 162.4 64.1 165.3 65.7 177.1" {...f('calves')}/>
+      <polygon points="35.5 158.4 35.9 162.4 35.9 166.9 35.1 172.2 35.1 176.7 32.2 182 30.6 187.3 26.9 194.7 27.3 187.8 28.2 180.4 28.6 175.5 29 169.8 29.8 164.1 30.2 158.8" {...f('calves')}/>
+      {/* Feet (custom) */}
+      <polygon points="64 196 63 202 66 207 74 208 81 205 82 198 75 196" {...f('feet')}/>
+      <polygon points="36 196 37 202 34 207 26 208 19 205 18 198 25 196" {...f('feet')}/>
     </svg>
   )
 }
